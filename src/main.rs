@@ -8,8 +8,11 @@ static LENGTH_OF_WORD: i32 = 5;
 fn main() {
     println!("Please type your 5 letters word below!");
     let mut target_str = String::new();
-    let mut map = HashMap::new();
+    let mut map : HashMap<char, u8> = HashMap::new();
+    
     io::stdin().read_line(&mut target_str);
+    let trimmed_target_str = target_str.trim();
+
     let target_str_len = target_str.len();
     println!("target_str_len : {}", target_str_len - 1);
 
@@ -20,14 +23,21 @@ fn main() {
     let mut n = 1;
     let mut candidate = String::new();
 
-    for value in target_str.chars() {
-        if map.contains_key(&value) {
-            *map.get_mut(&value).unwrap() += 1;
-        }
-        else {
-            map.insert(value, 1);
-        }
+    for ch in trimmed_target_str.chars() {
+        let counter = map.entry(ch).or_insert(0);
+        *counter += 1;
     }
+    for (key, value) in &map {
+        println!("{}: {}", key, value);
+    }
+    // for value in target_str.chars() {
+    //     if map.contains_key(&value) {
+    //         *map.get_mut(&value).unwrap() += 1;
+    //     }
+    //     else {
+    //         map.insert(value, 1);
+    //     }
+    // }
 
     // for val in map.values() {
     //     println!("{}", val);
@@ -35,18 +45,20 @@ fn main() {
 
     while n <= MAXIMUM_OPPORTUNITY {
         io::stdin().read_line(&mut candidate);
-        if candidate.eq(&target_str) {
+        let trimmed_candidate = candidate.trim();
+        // candidate.replace("\n", "");
+        if trimmed_candidate.eq(&target_str) {
             println!("success!");
             break;
         }
         else {
-            notice_hint(&map, &target_str, &candidate);
+            notice_hint(&mut map, &trimmed_target_str, &trimmed_candidate);
         }
         n += 1;
     }
 }
 
-fn notice_hint(h: &mut HashMap<&char, &String>, target: &String, candidate: &String) -> String{
+fn notice_hint(h: &mut HashMap<char, u8>, target: &str, candidate: &str) -> String {
     /*
         Input :
         Output :    5 letters word filled with 
@@ -66,7 +78,12 @@ fn notice_hint(h: &mut HashMap<&char, &String>, target: &String, candidate: &Str
         if target_array[idx] == candidate_array[idx] {
             result.push('G');
         }
-        else if h.contains_key(&value) && h.get(&value) > 1 {
+        else if h.contains_key(&value) && *h.entry(value).or_insert(0) > 1 {
+            // for ch in prac.chars() {
+            //     let counter = h.entry(ch).or_insert(0);
+            //     *counter += 1;
+            // }
+        
             result.push('Y');
         }
         else {
@@ -74,5 +91,6 @@ fn notice_hint(h: &mut HashMap<&char, &String>, target: &String, candidate: &Str
         }
         idx += 1;
     }
-    
+    println!("string : {}", result);
+    return result; 
 }
